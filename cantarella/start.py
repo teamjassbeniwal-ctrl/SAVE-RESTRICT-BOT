@@ -23,8 +23,8 @@ logger = LOGGER(__name__)
 SUBSCRIPTION = os.environ.get('SUBSCRIPTION', 'https://i.ibb.co/k2P1Zt9k/image.jpg')
 FREE_LIMIT_SIZE = 2 * 1024 * 1024 * 1024
 FREE_LIMIT_DAILY = 10
-UPI_ID = os.environ.get("UPI_ID", "your_upi@oksbi")
-QR_CODE = os.environ.get("QR_CODE", "https://graph.org/file/242b7f1b52743938d81f1.jpg")
+UPI_ID = os.environ.get("UPI_ID", "https://razorpay.me/@jashanpreetsingh1927?amount=ZFm4ghdmeB6pF5PK8Ki64w%3D%3D")
+QR_CODE = os.environ.get("QR_CODE", "https://i.ibb.co/k2P1Zt9k/image.jpg")
 REACTIONS = [
     "👍", "❤️", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "😱", "🤬",
     "😢", "🎉", "🤩", "🤮", "💩", "🙏", "👌", "🕊", "🤡", "🥱",
@@ -61,20 +61,21 @@ class script(object):
 <b>🔐 Security :</b> Safe & Encrypted  
 <b>📊 Reliability :</b> 99.9% Uptime  
 </blockquote>
-
+<blockquote>
 <b>🌟 What I Can Do:</b>
 📱 Save restricted channel/group posts  
 🎵 Download videos & audio from 30+ platforms  
 📂 Batch download multiple files  
 🔓 Access private & public Telegram content  
 💎 Premium support for large files & faster speed  
-
+<blockquote/>
+<blockquote>
 <b>📋 How To Use:</b>
 • Send any public channel post link  
 • For private channels use <code>/login</code>  
 • Get full guide using <code>/help</code>  
 • Stop running batch using <code>/cancel</code>  
-
+<blockquote/>
 <b>🚀 Ready to explore? Let’s get started!</b>
 
 <i>💫 Powered by Team JB 💫</i>
@@ -82,60 +83,44 @@ class script(object):
     HELP_TXT = """<b>📚 Help & User Guide</b>
 
 <b>🤖 What Can This Bot Do?</b>
-This bot helps you save restricted, private, and public Telegram content easily and safely.
+Save restricted, private & public Telegram content easily.
 
-<blockquote><b>1️⃣ Public Channels / Groups</b></blockquote>
-✅ No login required  
-✅ Just send or forward post link  
+<b>1️⃣ Public Channels / Groups</b>
+✅ No login needed  
+✅ Just send/forward post link  
 ✅ Works with all public channels  
+<b>Example:</b> <code>https://t.me/channel/123</code>
 
-<b>Example:</b>  
-<code>https://t.me/channel/123</code>
-
-
-<blockquote><b>2️⃣ Private / Restricted Channels</b></blockquote>
-🔐 Login required for security  
-👉 Use <code>/login</code> to connect your Telegram account  
+<b>2️⃣ Private / Restricted Channels</b>
+🔐 Login required  
+👉 Use <code>/login</code>  
 👉 Send private link after login  
+<b>Example:</b> <code>https://t.me/c/12345/678</code>
 
-<b>Example:</b>  
-<code>https://t.me/c/12345/678</code>
+<b>3️⃣ Batch Download Mode</b>
+📂 Download multiple files  
+👉 Use <code>/batch</code> with start & end links
 
+<b>🛑 Free User Limits</b>
+📥 10 files/day  
+📦 Max 2GB  
+⏳ Resets every 24h
 
-<blockquote><b>3️⃣ Batch Download Mode</b></blockquote>
-📂 Download multiple files together  
-
-👉 Use <code>/batch</code>  
-👉 Send starting & ending link  
-👉 Bot will auto download all posts  
-
-
-<blockquote><b>🛑 Free User Limits</b></blockquote>
-📥 10 Files per day  
-📦 Max file size: 2GB  
-⏳ Limit resets every 24 hours  
-
-
-<blockquote><b>💎 Premium Benefits</b></blockquote>
+<b>💎 Premium Benefits</b>
 ♾ Unlimited downloads  
 📁 4GB+ file support  
 ⚡ Faster processing  
 🖼 Custom thumbnails  
-📝 Custom captions  
-🛟 Priority support  
+📝 Custom captions
 
+<b>⚠️ Tips</b>
+• Check links  
+• Private content needs login  
+• Use /cancel to stop
 
-<b>⚠️ Important Tips</b>
-• Make sure links are correct  
-• Private content requires login  
-• Use /cancel to stop batch download  
-
-
-<b>❓ Need Help?</b>
-Contact Admin or use support options in menu.
-"""
+<b>❓ Need Help?</b> Contact Admin."""
     ABOUT_TXT = """<b>ℹ️ About This Bot</b>
-<blockquote><b>╭────[ 🧩 Technical Stack ]────⍟</b>
+<blockquote><b>╭────[ 🧩 Team JB ]────⍟</b>
 <b>├⍟ 🤖 Bot Name : <a href=http://t.me/Saverestrictedcontents01_bot>Save Content</a></b>
 <b>├⍟ 👨‍💻 Developer : <a href=https://t.me/TeamJB_bot>Team JB</a></b>
 <b>├⍟ 📚 Library : <a href='https://docs.pyrogram.org/'>Pyrogram Async</a></b>
@@ -165,13 +150,13 @@ Contact Admin or use support options in menu.
 </blockquote>
 
 🥉 <b>1 Month Plan</b>  
-₹50 / $1  
+₹100 /   
 
 🥈 <b>3 Months Plan</b>  
-₹120 / $2.5  <i>(Save 20%)</i>  
+₹250/  
 
 🥇 <b>Lifetime Plan</b>  
-₹200 / $4  <i>(One Time Payment)</i>  
+₹699 / <i>(One Time Payment)</i>  
 
 
 <blockquote>
