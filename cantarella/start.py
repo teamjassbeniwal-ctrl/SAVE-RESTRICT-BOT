@@ -433,7 +433,7 @@ async def check_sub(client, query):
     await query.message.delete()
     await query.answer("Subscription Verified ✅")
     
-@Client.on_message(filters.ltext & filters.private & ~filters.regex("^/"))
+@Client.on_message(filters.text & filters.private & ~filters.regex("^/"))
 async def save(client: Client, message: Message):
     if "https://t.me/" in message.text:
        
