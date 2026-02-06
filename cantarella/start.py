@@ -10,7 +10,7 @@ import requests
 import hashlib 
 from pyrogram import Client, filters, enums
 from pyrogram.errors import (
-    FloodWait, UserIsBlocked, InputUserDeactivated, UserAlreadyParticipant,
+    FloodWait, UserIsBlocked, InputUserDeactivated, UserNotParticipant, UserAlreadyParticipant,
     InviteHashExpired, UsernameNotOccupied, AuthKeyUnregistered, UserDeactivated, UserDeactivatedBan
 )
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery, InputMediaPhoto
@@ -49,73 +49,162 @@ if (
 
 class script(object):
    
-    START_TXT = """<b>👋 Hello {},</b>
-<b>🤖 I am <a href=https://t.me/{}>{}</a></b>
-<i>Your Professional Restricted Content Saver Bot.</i>
-<blockquote><b>🚀 System Status: 🟢 Online</b>
-<b>⚡ Performance: 10x High-Speed Processing</b>
-<b>🔐 Security: End-to-End Encrypted</b>
-<b>📊 Uptime: 99.9% Guaranteed</b></blockquote>
-<b>👇 Select an Option Below to Get Started:</b>
+    START_TXT = """<b>🎌 Welcome {},</b>
+
+<b>🤖 I am <a href="https://t.me/{}">{}</a></b>
+<i>Your Ultimate Restricted Content Saver Bot</i>
+
+<blockquote>
+<b>🚀 Status :</b> 🟢 Online & Ready  
+<b>⚡ Speed :</b> Ultra Fast Processing  
+<b>🔐 Security :</b> Safe & Encrypted  
+<b>📊 Reliability :</b> 99.9% Uptime  
+</blockquote>
+
+<b>🌟 What I Can Do:</b>
+📱 Save restricted channel/group posts  
+🎵 Download videos & audio from 30+ platforms  
+📂 Batch download multiple files  
+🔓 Access private & public Telegram content  
+💎 Premium support for large files & faster speed  
+
+<b>📋 How To Use:</b>
+• Send any public channel post link  
+• For private channels use <code>/login</code>  
+• Get full guide using <code>/help</code>  
+• Stop running batch using <code>/cancel</code>  
+
+<b>🚀 Ready to explore? Let’s get started!</b>
+
+<i>💫 Powered by Team JB 💫</i>
 """
-    HELP_TXT = """<b>📚 Comprehensive Help & User Guide</b>
-<blockquote><b>1️⃣ Public Channels (No Login Required)</b></blockquote>
-• Forward or send the post link directly.
-• Compatible with any public channel or group.
-• <i>Example Link:</i> <code>https://t.me/channel/123</code>
-<blockquote><b>2️⃣ Private/Restricted Channels (Login Required)</b></blockquote>
-• Use <code>/login</code> to securely connect your Telegram account.
-• Send the private link (e.g., <code>t.me/c/123...</code>).
-• Bot accesses content using your authenticated session.
-<blockquote><b>3️⃣ Batch Downloading Mode</b></blockquote>
-• Initiate with <code>/batch</code> for multiple files.
-• Follow interactive prompts for seamless processing.
-<blockquote><b>🛑 Free User Limitations:</b></blockquote>
-• <b>Daily Quota:</b> 10 Files / 24 Hours
-• <b>File Size Cap:</b> 2GB Maximum
-<blockquote><b>💎 Premium Membership Benefits:</b></blockquote>
-• Unlimited Downloads & No Restrictions.
-• Priority Support & Advanced Features.
+    HELP_TXT = """<b>📚 Help & User Guide</b>
+
+<b>🤖 What Can This Bot Do?</b>
+This bot helps you save restricted, private, and public Telegram content easily and safely.
+
+<blockquote><b>1️⃣ Public Channels / Groups</b></blockquote>
+✅ No login required  
+✅ Just send or forward post link  
+✅ Works with all public channels  
+
+<b>Example:</b>  
+<code>https://t.me/channel/123</code>
+
+
+<blockquote><b>2️⃣ Private / Restricted Channels</b></blockquote>
+🔐 Login required for security  
+👉 Use <code>/login</code> to connect your Telegram account  
+👉 Send private link after login  
+
+<b>Example:</b>  
+<code>https://t.me/c/12345/678</code>
+
+
+<blockquote><b>3️⃣ Batch Download Mode</b></blockquote>
+📂 Download multiple files together  
+
+👉 Use <code>/batch</code>  
+👉 Send starting & ending link  
+👉 Bot will auto download all posts  
+
+
+<blockquote><b>🛑 Free User Limits</b></blockquote>
+📥 10 Files per day  
+📦 Max file size: 2GB  
+⏳ Limit resets every 24 hours  
+
+
+<blockquote><b>💎 Premium Benefits</b></blockquote>
+♾ Unlimited downloads  
+📁 4GB+ file support  
+⚡ Faster processing  
+🖼 Custom thumbnails  
+📝 Custom captions  
+🛟 Priority support  
+
+
+<b>⚠️ Important Tips</b>
+• Make sure links are correct  
+• Private content requires login  
+• Use /cancel to stop batch download  
+
+
+<b>❓ Need Help?</b>
+Contact Admin or use support options in menu.
 """
     ABOUT_TXT = """<b>ℹ️ About This Bot</b>
 <blockquote><b>╭────[ 🧩 Technical Stack ]────⍟</b>
-<b>├⍟ 🤖 Bot Name : <a href=http://t.me/THEUPDATEDGUYS_Bot>Save Content</a></b>
-<b>├⍟ 👨‍💻 Developer : <a href=https://t.me/DmOwner>Ⓜ️ark X cantarella</a></b>
+<b>├⍟ 🤖 Bot Name : <a href=http://t.me/Saverestrictedcontents01_bot>Save Content</a></b>
+<b>├⍟ 👨‍💻 Developer : <a href=https://t.me/TeamJB_bot>Team JB</a></b>
 <b>├⍟ 📚 Library : <a href='https://docs.pyrogram.org/'>Pyrogram Async</a></b>
 <b>├⍟ 🐍 Language : <a href='https://www.python.org/'>Python 3.11+</a></b>
 <b>├⍟ 🗄 Database : <a href='https://www.mongodb.com/'>MongoDB Atlas Cluster</a></b>
 <b>├⍟ 📡 Hosting : Dedicated High-Speed VPS</b>
 <b>╰───────────────⍟</b></blockquote>
 """
-    PREMIUM_TEXT = """<b>💎 Premium Membership Plans</b>
-<b>Unlock Unlimited Access & Advanced Features!</b>
-<blockquote><b>✨ Key Benefits:</b>
-<b>♾️ Unlimited Daily Downloads</b>
-<b>📂 Support for 4GB+ File Sizes</b>
-<b>⚡ Instant Processing (Zero Delay)</b>
-<b>🖼 Customizable Thumbnails</b>
-<b>📝 Personalized Captions</b>
-<b>🛂 24/7 Priority Support</b></blockquote>
-<blockquote><b>💳 Pricing Options:</b></blockquote>
-• <b>1 Month Plan:</b> ₹50 / $1 (Billed Monthly)
-• <b>3 Month Plan:</b> ₹120 / $2.5 (Save 20%)
-• <b>Lifetime Access:</b> ₹200 / $4 (One-Time Payment)
-<blockquote><b>👇 Secure Payment:</b></blockquote>
-<b>💸 UPI ID:</b> <code>{}</code>
-<b>📸 QR Code:</b> <a href='{}'>Scan to Pay</a>
-<i>After Payment: Send Screenshot to Admin for Instant Activation.</i>
+    PREMIUM_TEXT = """<b>💎 Team JB Premium Membership</b>
+
+<i>Unlock Full Power & Unlimited Features</i>
+
+<blockquote>
+<b>✨ Premium Benefits:</b>
+♾ Unlimited Daily Downloads  
+📦 Download Files Larger Than 4GB  
+⚡ Ultra Fast Processing Speed  
+🖼 Custom Thumbnail Support  
+📝 Custom Caption Support  
+📂 Advanced Batch Download Mode  
+🛟 24/7 Priority Support  
+🚫 No Ads / No Restrictions  
+</blockquote>
+
+<blockquote>
+<b>💰 Subscription Plans:</b>
+</blockquote>
+
+🥉 <b>1 Month Plan</b>  
+₹50 / $1  
+
+🥈 <b>3 Months Plan</b>  
+₹120 / $2.5  <i>(Save 20%)</i>  
+
+🥇 <b>Lifetime Plan</b>  
+₹200 / $4  <i>(One Time Payment)</i>  
+
+
+<blockquote>
+<b>💳 Payment Details:</b>
+</blockquote>
+
+💸 <b>UPI ID :</b>  
+<code>{}</code>
+
+📸 <b>Scan & Pay :</b>  
+<a href="{}">Click Here To Open QR</a>
+
+<b>✅ After Payment:</b>
+Send payment screenshot to admin for instant premium activation.
+
+<i>⚡ Upgrade Now & Enjoy Unlimited Saving Experience</i>
+
+<i>💫 Powered by Team JB 💫</i>
 """
     PROGRESS_BAR = """\
-<b>⚡ Processing Task...</b>
+<b>⚡ Processing Your File...</b>
+
 <blockquote>
-<b>Progress: {bar} {percentage:.1f}%</b>
-<b>🚀 Speed:</b> <code>{speed}/s</code>
-<b>💾 Size:</b> <code>{current} of {total}</code>
-<b>⏱ Elapsed:</b> <code>{elapsed}</code>
-<b>⏳ ETA:</b> <code>{eta}</code>
+<b>📊 Progress :</b> {bar} <b>{percentage:.1f}%</b>
+
+<b>🚀 Speed :</b> <code>{speed}/s</code>  
+<b>💾 Downloaded :</b> <code>{current} / {total}</code>  
+<b>⏱ Time Passed :</b> <code>{elapsed}</code>  
+<b>⏳ Time Remaining :</b> <code>{eta}</code>
 </blockquote>
+
+<i>🔄 Please wait... Your file is being prepared.</i>
 """
-    CAPTION = """<b><a href="https://t.me/THEUPDATEDGUYS"></a></b>\n\n<b>⚜️ Powered By : <a href="https://t.me/THEUPDATEDGUYS">THE UPDATED GUYS 😎</a></b>"""
+    CAPTION = """<b><a href="https://t.me/teamjb1"></a></b>\n\n<b>⚜️ Powered By : <a href="https://t.me/TeamJB_bot">Team JB 😎</a></b>"""
     LIMIT_REACHED = """<b>🚫 Daily Limit Exceeded</b>
 <b>Your 10 free saves for today have been used.</b>
 <i>Quota resets automatically after 24 hours from first download.</i>
@@ -225,6 +314,8 @@ def progress(current, total, message, type):
             pass
 @Client.on_message(filters.command(["start"]))
 async def send_start(client: Client, message: Message):
+    if await force_subscribe(client, message):
+        return
     if not await db.is_user_exist(message.from_user.id):
         await db.add_user(message.from_user.id, message.from_user.first_name)
     try:
@@ -239,19 +330,19 @@ async def send_start(client: Client, message: Message):
         photo_url = response.json()["url"]
     except Exception as e:
         logger.error(f"Failed to fetch image from API: {e}")
-        photo_url = "https://i.postimg.cc/kX9tjGXP/16.png"
+        photo_url = "https://i.ibb.co/k2P1Zt9k/image.jpg"
     buttons = [
         [
-            InlineKeyboardButton("💎 Buy Premium", callback_data="buy_premium"),
-            InlineKeyboardButton("🆘 Help & Guide", callback_data="help_btn")
+            InlineKeyboardButton("📢 Channel", url="https://t.me/teamjb1"),
+        InlineKeyboardButton("💬 Group", url="https://t.me/botsupdatesgroup")
         ],
         [
-            InlineKeyboardButton("⚙️ Settings Panel", callback_data="settings_btn"),
+            InlineKeyboardButton("👨‍💻 Developer", url="https://t.me/TeamJB_bot"),
             InlineKeyboardButton("ℹ️ About Bot", callback_data="about_btn")
         ],
         [
-            InlineKeyboardButton('📢 Channels', callback_data="channels_info"),
-            InlineKeyboardButton('👨‍💻 Developers', callback_data="dev_info")
+            InlineKeyboardButton('💎 Buy Premium', callback_data="buy_premium"),
+            InlineKeyboardButton('🆘 Help & Guide', callback_data="help_btn")
         ]
     ]
     reply_markup = InlineKeyboardMarkup(buttons)
@@ -266,6 +357,15 @@ async def send_start(client: Client, message: Message):
     )
 @Client.on_message(filters.command(["help"]))
 async def send_help(client: Client, message: Message):
+    if await force_subscribe(client, message):
+        return
+    buttons = [[InlineKeyboardButton("❌ Close Menu", callback_data="close_btn")]]
+    await client.send_message(
+        chat_id=message.chat.id,
+        text=script.HELP_TXT,
+        reply_markup=InlineKeyboardMarkup(buttons),
+        parse_mode=enums.ParseMode.HTML
+    )
     buttons = [[InlineKeyboardButton("❌ Close Menu", callback_data="close_btn")]]
     await client.send_message(
         chat_id=message.chat.id,
@@ -275,8 +375,10 @@ async def send_help(client: Client, message: Message):
     )
 @Client.on_message(filters.command(["plan", "myplan", "premium"]))
 async def send_plan(client: Client, message: Message):
+    if await force_subscribe(client, message):
+        return
     buttons = [
-        [InlineKeyboardButton("📸 Send Payment Proof", url="https://t.me/DmOwner")],
+        [InlineKeyboardButton("📸 Send Payment Proof", url="https://t.me/TeamJB_bot")],
         [InlineKeyboardButton("❌ Close Menu", callback_data="close_btn")]
     ]
     await client.send_photo(
@@ -288,6 +390,8 @@ async def send_plan(client: Client, message: Message):
     )
 @Client.on_message(filters.command(["cancel"]))
 async def send_cancel(client: Client, message: Message):
+    if await force_subscribe(client, message):
+        return
     batch_temp.IS_BATCH[message.from_user.id] = True
     await message.reply_text("❌ Batch Process Cancelled Successfully.")
 async def settings_panel(client, callback_query):
@@ -508,7 +612,7 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
         await settings_panel(client, callback_query)
     elif data == "buy_premium":
         buttons = [
-            [InlineKeyboardButton("📸 Send Payment Proof", url="https://t.me/DmOwner")],
+            [InlineKeyboardButton("📸 Send Payment Proof", url="https://t.me/TeamJB_bot")],
             [InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]
         ]
         await client.edit_message_media(
@@ -549,20 +653,20 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             photo_url = response.json()["url"]
         except Exception as e:
             logger.error(f"Failed to fetch image from API: {e}")
-            photo_url = "https://i.postimg.cc/cC7txyhz/15.png"
+            photo_url = "https://i.ibb.co/k2P1Zt9k/image.jpg"
         buttons = [
             [
-                InlineKeyboardButton("💎 Buy Premium", callback_data="buy_premium"),
-                InlineKeyboardButton("🆘 Help & Guide", callback_data="help_btn")
-            ],
-            [
-                InlineKeyboardButton("⚙️ Settings Panel", callback_data="settings_btn"),
-                InlineKeyboardButton("ℹ️ About Bot", callback_data="about_btn")
-            ],
-            [
-                InlineKeyboardButton('📢 Channels', callback_data="channels_info"),
-                InlineKeyboardButton('👨‍💻 Developers', callback_data="dev_info")
-            ]
+            InlineKeyboardButton("📢 Channel", url="https://t.me/teamjb1"),
+        InlineKeyboardButton("💬 Group", url="https://t.me/botsupdatesgroup")
+        ],
+        [
+            InlineKeyboardButton("👨‍💻 Developer", url="https://t.me/TeamJB_bot")
+            InlineKeyboardButton("ℹ️ About Bot", callback_data="about_btn")
+        ],
+        [
+            InlineKeyboardButton('💎 Buy Premium', callback_data="buy_premium"),
+            InlineKeyboardButton('🆘 Help & Guide', callback_data="help_btn")
+        ]
         ]
         await client.edit_message_media(
             chat_id=message.chat.id,
