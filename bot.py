@@ -6,7 +6,7 @@ from datetime import timezone, timedelta
 from pyrogram import Client, filters, enums, __version__ as pyrogram_version
 from pyrogram.types import Message, BotCommand
 from pyrogram.errors import FloodWait, RPCError
-from config import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL, ADMINS
+from config import API_ID, API_HASH, BOT_TOKEN, LOG_CHANNEL, ADMINS, FORCE_CHANNELS
 from database.db import db
 from logger import LOGGER
 
@@ -137,7 +137,7 @@ class Bot(Client):
 
 BotInstance = Bot()
 
-@BotInstance.on_message(filters.private & filters.incoming, group=-1)
+@BotInstance.on_message(filters.private & filters.incoming, group=1)
 async def new_user_log(bot: Client, message: Message):
     user = message.from_user
     if not user or user.id in USER_CACHE:
