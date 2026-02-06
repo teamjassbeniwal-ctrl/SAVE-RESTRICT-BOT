@@ -675,7 +675,7 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
         InlineKeyboardButton("💬 Group", url="https://t.me/botsupdatesgroup")
         ],
         [
-            InlineKeyboardButton("👨‍💻 Developer", url="https://t.me/TeamJB_bot")
+            InlineKeyboardButton("👨‍💻 Developer", url="https://t.me/TeamJB_bot"),
             InlineKeyboardButton("ℹ️ About Bot", callback_data="about_btn")
         ],
         [
