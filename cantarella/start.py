@@ -14,7 +14,8 @@ from pyrogram.errors import (
     InviteHashExpired, UsernameNotOccupied, AuthKeyUnregistered, UserDeactivated, UserDeactivatedBan
 )
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery, InputMediaPhoto
-from config import API_ID, API_HASH, ERROR_MESSAGE
+from config import API_ID, API_HASH, ERROR_MESSAGE, FORCE_CHANNELS
+from cantarella.force_sub import force_subscribe
 from database.db import db
 import math
 from logger import LOGGER
@@ -418,7 +419,21 @@ async def settings_panel(client, callback_query):
         reply_markup=buttons,
         parse_mode=enums.ParseMode.HTML
     )
-@Client.on_message(filters.text & filters.private & ~filters.regex("^/"))
+
+@Client.on_callback_query(filters.regex("check_sub"))
+async def check_sub(client, query):
+
+    for channel_id in FORCE_CHANNELS:
+        try:
+            await client.get_chat_member(channel_id, query.from_user.id)
+
+        except UserNotParticipant:
+            return await query.answer("Join all channels first ❌", show_alert=True)
+
+    await query.message.delete()
+    await query.answer("Subscription Verified ✅")
+    
+@Client.on_message(filters.ltext & filters.private & ~filters.regex("^/"))
 async def save(client: Client, message: Message):
     if "https://t.me/" in message.text:
        
