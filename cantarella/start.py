@@ -64,61 +64,63 @@ class script(object):
 <blockquote>
 <b>🌟 What I Can Do:</b>
 📱 Save restricted channel/group posts  
-🎵 Download videos & audio from 30+ platforms  
 📂 Batch download multiple files  
 🔓 Access private & public Telegram content  
 💎 Premium support for large files & faster speed  
-<blockquote/>
+</blockquote>
 <blockquote>
 <b>📋 How To Use:</b>
 • Send any public channel post link  
 • For private channels use <code>/login</code>  
 • Get full guide using <code>/help</code>  
 • Stop running batch using <code>/cancel</code>  
-<blockquote/>
+</blockquote>
 <b>🚀 Ready to explore? Let’s get started!</b>
 
 <i>💫 Powered by Team JB 💫</i>
 """
-    HELP_TXT = """<b>📚 Help & User Guide</b>
+    HELP_TXT = """🖍️ HELP MENU
 
-<b>🤖 What Can This Bot Do?</b>
-Save restricted, private & public Telegram content easily.
+🔻 ғᴏʀ ᴘᴜʙʟɪᴄ ᴀɴᴅ ᴘʀɪᴠᴀᴛᴇ ᴄʜᴀᴛs :-
+► Jᴜsᴛ Sᴇɴᴅ Pᴏsᴛ Lɪɴᴋs
+• Public Channels Example: https://t.me/channel/123
+• Private Channels Example: https://t.me/c/12345/678
+• Private content requires login: /login
 
-<b>1️⃣ Public Channels / Groups</b>
-✅ No login needed  
-✅ Just send/forward post link  
-✅ Works with all public channels  
-<b>Example:</b> <code>https://t.me/channel/123</code>
+🔻 ғᴏʀ ʙᴏᴛ ᴄʜᴀᴛs :-
+► Send bot messages link like:
+https://t.me/b/botusername/4321
+- For bot message ID use Plus Messenger App
 
-<b>2️⃣ Private / Restricted Channels</b>
-🔐 Login required  
-👉 Use <code>/login</code>  
-👉 Send private link after login  
-<b>Example:</b> <code>https://t.me/c/12345/678</code>
+🔻 ғᴏʀ ᴍᴜʟᴛɪᴘʟᴇ ᴘᴏsᴛ ᴀᴛ ᴀ ᴛɪᴍᴇ :-
+► Send public/private post links in "from-to" format to download multiple messages
+• Example:
+https://t.me/xxxx/1001-1010
+https://t.me/c/xxxx/101-120
+• Note: Spaces in between do not matter
 
-<b>3️⃣ Batch Download Mode</b>
-📂 Download multiple files  
-👉 Use <code>/batch</code> with start & end links
+📚 AVAILABLE COMMANDS :-
+⏣ /start - ᴄʜᴇᴄᴋ ɪ'ᴍ ᴀʟɪᴠᴇ
+⏣ /help - ʜᴇʟᴘ ᴍᴇɴᴜ
+⏣ /batch - ᴅᴏᴡɴʟᴏᴀᴅ ᴍᴜʟᴛɪᴘʟᴇ ᴘᴏsᴛs ᴀᴛ ᴀ ᴛɪᴍᴇ
+⏣ /settings - ᴄᴜsᴛᴏᴍɪᴢᴇ sᴇᴛᴛɪɴɢs
+⏣ /login - ʟᴏɢɪɴ ᴀᴄᴄᴏᴜɴᴛ
+⏣ /logout - ʟᴏɢᴏᴜᴛ ᴀᴄᴄᴏᴜɴᴛ
+⏣ /set_thumb - sᴇᴛ ᴛʜᴜᴍʙɴᴀɪʟ
+⏣ /view_thumb - ᴠɪᴇᴡ ᴛʜᴜᴍʙɴᴀɪʟ
+⏣ /del_thumb - ᴅᴇʟᴇᴛᴇ ᴛʜᴜᴍʙɴᴀɪʟ
+⏣ /set_caption - sᴇᴛ ᴄᴜsᴛᴏᴍ ᴄᴀᴘᴛɪᴏɴ
+⏣ /see_caption - ᴠɪᴇᴡ ᴄᴀᴘᴛɪᴏɴ
+⏣ /del_caption - ᴅᴇʟᴇᴛᴇ ᴄᴀᴘᴛɪᴏɴ
+⏣ /setchat - sᴇᴛ ᴄʜᴀɴɴᴇʟ
+⏣ /remchat - ᴅᴇʟᴇᴛᴇ ᴄʜᴀɴɴᴇʟ
+⏣ /broadcast - ʙʀᴏᴀᴅᴄᴀsᴛ ᴍᴇssᴀɢᴇ (ᴏᴡɴᴇʀ ᴏɴʟʏ)
 
-<b>🛑 Free User Limits</b>
-📥 10 files/day  
-📦 Max 2GB  
-⏳ Resets every 24h
-
-<b>💎 Premium Benefits</b>
-♾ Unlimited downloads  
-📁 4GB+ file support  
-⚡ Faster processing  
-🖼 Custom thumbnails  
-📝 Custom captions
-
-<b>⚠️ Tips</b>
-• Check links  
-• Private content needs login  
-• Use /cancel to stop
-
-<b>❓ Need Help?</b> Contact Admin."""
+⚠️ TIPS :-
+• Make sure links are correct
+• Private content needs login
+• Use /cancel to stop batch download
+"""
     ABOUT_TXT = """<b>ℹ️ About This Bot</b>
 <blockquote><b>╭────[ 🧩 Team JB ]────⍟</b>
 <b>├⍟ 🤖 Bot Name : <a href=http://t.me/Saverestrictedcontents01_bot>Save Content</a></b>
