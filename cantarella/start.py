@@ -21,7 +21,8 @@ import math
 from logger import LOGGER
 logger = LOGGER(__name__)
 SUBSCRIPTION = os.environ.get('SUBSCRIPTION', 'https://i.ibb.co/k2P1Zt9k/image.jpg')
-FREE_LIMIT_SIZE = 2 * 1024 * 1024 * 1024
+FREE_LIMIT_SIZE = 2 * 1024 * 1024 * 1024  # 2GB for free users
+PREMIUM_LIMIT_SIZE = 4 * 1024 * 1024 * 1024  # 4GB for premium users
 FREE_LIMIT_DAILY = 10
 UPI_ID = os.environ.get("UPI_ID", "https://razorpay.me/@jashanpreetsingh1927?amount=ZFm4ghdmeB6pF5PK8Ki64w%3D%3D")
 QR_CODE = os.environ.get("QR_CODE", "https://i.ibb.co/k2P1Zt9k/image.jpg")
@@ -36,7 +37,6 @@ REACTIONS = [
     "😡"
 ]
 
-
 dev_text = "👨‍💻 Mind Behind This Bot:\n• @DmOwner\n• @akaza7902"
 expected_dev_hash = "b9e63b7578bdec13f3cb3162fe5f5e93dccaba3bfd5c8ddacbb90ffdcdcce402"
 channels_text = "📢 Official Channels:\n• @ReX_update\n• @THEUPDATEDGUYS\n\nStay updated for new features!"
@@ -49,7 +49,6 @@ if (
     raise Exception("Tampered developer info detected! Bot will not start. Fuck the code - crashing now.")
 
 class script(object):
-   
     START_TXT = """<b>🎌 Welcome {},</b>
 
 <b>🤖 I am <a href="https://t.me/{}">{}</a></b>
@@ -66,7 +65,7 @@ class script(object):
 📱 Save restricted channel/group posts  
 📂 Batch download multiple files  
 🔓 Access private & public Telegram content  
-💎 Premium support for large files & faster speed  
+💎 Premium support for large files (up to 4GB) & faster speed  
 </blockquote>
 <blockquote>
 <b>📋 How To Use:</b>
@@ -75,7 +74,7 @@ class script(object):
 • Get full guide using <code>/help</code>  
 • Stop running batch using <code>/cancel</code>  
 </blockquote>
-<b>🚀 Ready to explore? Let’s get started!</b>
+<b>🚀 Ready to explore? Let's get started!</b>
 
 <i>💫 Powered by Team JB 💫</i>
 """
@@ -97,7 +96,8 @@ https://t.me/b/botusername/4321
 • Example:
 https://t.me/xxxx/1001-1010
 https://t.me/c/xxxx/101-120
-• Note: Spaces in between do not matter
+• Note: Free users: Max 5 files per batch & Max 2GB per file
+• Premium users: Max 1000 files per batch & Max 4GB per file
 
 📚 AVAILABLE COMMANDS :-
 ⏣ /start - ᴄʜᴇᴄᴋ ɪ'ᴍ ᴀʟɪᴠᴇ
@@ -141,7 +141,8 @@ https://t.me/b/botusername/4321
 • Example:
 https://t.me/xxxx/1001-1010
 https://t.me/c/xxxx/101-120
-• Note: Spaces in between do not matter
+• Note: Free users: Max 5 files per batch & Max 2GB per file
+• Premium users: Max 1000 files per batch & Max 4GB per file
 
 ⚠️ TIPS :-
 • Make sure links are correct
@@ -165,11 +166,11 @@ https://t.me/c/xxxx/101-120
 <blockquote>
 <b>✨ Premium Benefits:</b>
 ♾ Unlimited Daily Downloads  
-📦 Download Files Larger Than 4GB  
+📦 Download Files Up To 4GB (Free: 2GB Limit)  
 ⚡ Ultra Fast Processing Speed  
 🖼 Custom Thumbnail Support  
 📝 Custom Caption Support  
-📂 Advanced Batch Download Mode  
+📂 Advanced Batch Download Mode (Up to 1000 files)  
 🛟 24/7 Priority Support  
 🚫 No Ads / No Restrictions  
 </blockquote>
@@ -228,9 +229,22 @@ Remove all restrictions and enjoy seamless downloading.
 """
     SIZE_LIMIT = """<b>⚠️ File Size Exceeded</b>
 <b>Free tier limited to 2GB per file.</b>
+<i>File size: {file_size}</i>
 <blockquote><b>🔓 Upgrade to Premium</b></blockquote>
-Download files up to 4GB and beyond with no limits!
+Download files up to 4GB with no limits!
 """
+    PREMIUM_SIZE_LIMIT = """<b>⚠️ File Size Exceeded</b>
+<b>Premium tier limited to 4GB per file.</b>
+<i>File size: {file_size}</i>
+<blockquote>Contact admin for larger files</blockquote>
+"""
+    BATCH_LIMIT = """<b>⚠️ Batch Limit Exceeded</b>
+<b>Free users can download maximum 5 files per batch.</b>
+<i>You requested: {requested} files</i>
+<blockquote><b>🔓 Upgrade to Premium</b></blockquote>
+Download up to 1000 files per batch with Premium!
+"""
+
 def humanbytes(size):
     if not size:
         return "0B"
@@ -241,6 +255,7 @@ def humanbytes(size):
         size /= power
         n += 1
     return str(round(size, 2)) + " " + Dic_powerN[n] + 'B'
+
 def TimeFormatter(milliseconds: int) -> str:
     seconds, milliseconds = divmod(int(milliseconds), 1000)
     minutes, seconds = divmod(seconds, 60)
@@ -251,8 +266,10 @@ def TimeFormatter(milliseconds: int) -> str:
         ((str(minutes) + "m, ") if minutes else "") + \
         ((str(seconds) + "s, ") if seconds else "")
     return tmp[:-2] if tmp else "0s"
+
 class batch_temp(object):
     IS_BATCH = {}
+
 def get_message_type(msg):
     if getattr(msg, 'document', None): return "Document"
     if getattr(msg, 'video', None): return "Video"
@@ -260,6 +277,7 @@ def get_message_type(msg):
     if getattr(msg, 'audio', None): return "Audio"
     if getattr(msg, 'text', None): return "Text"
     return None
+
 async def downstatus(client, statusfile, message, chat):
     while not os.path.exists(statusfile):
         await asyncio.sleep(3)
@@ -271,6 +289,7 @@ async def downstatus(client, statusfile, message, chat):
             await asyncio.sleep(5)
         except:
             await asyncio.sleep(5)
+
 async def upstatus(client, statusfile, message, chat):
     while not os.path.exists(statusfile):
         await asyncio.sleep(3)
@@ -282,6 +301,7 @@ async def upstatus(client, statusfile, message, chat):
             await asyncio.sleep(5)
         except:
             await asyncio.sleep(5)
+
 def progress(current, total, message, type):
     if batch_temp.IS_BATCH.get(message.from_user.id):
         raise Exception("Cancelled")
@@ -327,6 +347,7 @@ def progress(current, total, message, type):
                 progress.cache.pop(task_id, None)
         except:
             pass
+
 @Client.on_message(filters.command(["start"]))
 async def send_start(client: Client, message: Message):
     if await force_subscribe(client, message):
@@ -349,7 +370,7 @@ async def send_start(client: Client, message: Message):
     buttons = [
         [
             InlineKeyboardButton("📢 Channel", url="https://t.me/teamjb1"),
-        InlineKeyboardButton("💬 Group", url="https://t.me/botsupdatesgroup")
+            InlineKeyboardButton("💬 Group", url="https://t.me/botsupdatesgroup")
         ],
         [
             InlineKeyboardButton("👨‍💻 Developer", url="https://t.me/TeamJB_bot"),
@@ -370,6 +391,7 @@ async def send_start(client: Client, message: Message):
         reply_to_message_id=message.id,
         parse_mode=enums.ParseMode.HTML
     )
+
 @Client.on_message(filters.command(["help"]))
 async def send_help(client: Client, message: Message):
     if await force_subscribe(client, message):
@@ -381,6 +403,7 @@ async def send_help(client: Client, message: Message):
         reply_markup=InlineKeyboardMarkup(buttons),
         parse_mode=enums.ParseMode.HTML
     )
+
 @Client.on_message(filters.command(["plan", "myplan", "premium"]))
 async def send_plan(client: Client, message: Message):
     if await force_subscribe(client, message):
@@ -396,12 +419,14 @@ async def send_plan(client: Client, message: Message):
         reply_markup=InlineKeyboardMarkup(buttons),
         parse_mode=enums.ParseMode.HTML
     )
+
 @Client.on_message(filters.command(["cancel"]))
 async def send_cancel(client: Client, message: Message):
     if await force_subscribe(client, message):
         return
     batch_temp.IS_BATCH[message.from_user.id] = True
     await message.reply_text("❌ Batch Process Cancelled Successfully.")
+
 async def settings_panel(client, callback_query):
     """
     Renders the Settings Menu with professional layout.
@@ -429,11 +454,9 @@ async def settings_panel(client, callback_query):
 
 @Client.on_callback_query(filters.regex("check_sub"))
 async def check_sub(client, query):
-
     for channel_id in FORCE_CHANNELS:
         try:
             await client.get_chat_member(channel_id, query.from_user.id)
-
         except UserNotParticipant:
             return await query.answer("Join all channels first ❌", show_alert=True)
 
@@ -443,7 +466,7 @@ async def check_sub(client, query):
 @Client.on_message(filters.text & filters.private & ~filters.regex("^/"))
 async def save(client: Client, message: Message):
     if "https://t.me/" in message.text:
-       
+        # Check daily limit
         is_limit_reached = await db.check_limit(message.from_user.id)
         if is_limit_reached:
             btn = InlineKeyboardMarkup([[InlineKeyboardButton("💎 Upgrade to Premium", callback_data="buy_premium")]])
@@ -454,8 +477,11 @@ async def save(client: Client, message: Message):
                 parse_mode=enums.ParseMode.HTML
             )
        
+        # Check if another task is running
         if batch_temp.IS_BATCH.get(message.from_user.id) == False:
             return await message.reply_text("<b>⚠️ A Task is Currently Processing.</b>\n<i>Please wait for completion or use /cancel to stop.</i>", parse_mode=enums.ParseMode.HTML)
+        
+        # Parse message IDs from URL
         datas = message.text.split("/")
         temp = datas[-1].replace("?single", "").split("-")
         fromID = int(temp[0].strip())
@@ -463,15 +489,43 @@ async def save(client: Client, message: Message):
             toID = int(temp[1].strip())
         except:
             toID = fromID
+        
+        # Calculate batch size
+        batch_size = (toID - fromID) + 1
+        
+        # Check batch limit based on user premium status
+        is_premium = await db.check_premium(message.from_user.id)
+        if not is_premium and batch_size > 5:
+            btn = InlineKeyboardMarkup([[InlineKeyboardButton("💎 Upgrade to Premium", callback_data="buy_premium")]])
+            return await message.reply_photo(
+                photo=SUBSCRIPTION,
+                caption=script.BATCH_LIMIT.format(requested=batch_size),
+                reply_markup=btn,
+                parse_mode=enums.ParseMode.HTML
+            )
+        elif is_premium and batch_size > 1000:
+            return await message.reply_text("<b>⚠️ Batch Limit Exceeded</b>\n<i>Premium users can download maximum 1000 files per batch.</i>", parse_mode=enums.ParseMode.HTML)
+        
         batch_temp.IS_BATCH[message.from_user.id] = False
         is_private_link = "https://t.me/c/" in message.text
         is_batch = "https://t.me/b/" in message.text
         is_public_link = not is_private_link and not is_batch
+        
+        # Initialize counter for successful downloads
+        success_count = 0
+        
         for msgid in range(fromID, toID + 1):
-           
+            # Check if batch was cancelled
             if batch_temp.IS_BATCH.get(message.from_user.id):
                 break
-           
+            
+            # Check daily limit for each file (for free users)
+            if not is_premium:
+                is_limit_reached = await db.check_limit(message.from_user.id)
+                if is_limit_reached:
+                    await message.reply_text(f"<b>⚠️ Daily Limit Reached</b>\n<i>Successfully downloaded {success_count} files out of {batch_size}</i>", parse_mode=enums.ParseMode.HTML)
+                    break
+            
             if is_public_link:
                 username = datas[3]
                 try:
@@ -482,10 +536,13 @@ async def save(client: Client, message: Message):
                         reply_to_message_id=message.id
                     )
                     await db.add_traffic(message.from_user.id)
+                    success_count += 1
                     await asyncio.sleep(1)
                     continue
                 except Exception as e:
                     pass
+            
+            # For private/bot links, check user session
             user_data = await db.get_session(message.from_user.id)
             if user_data is None:
                 await message.reply(
@@ -496,6 +553,7 @@ async def save(client: Client, message: Message):
                 )
                 batch_temp.IS_BATCH[message.from_user.id] = True
                 return
+            
             try:
                 acc = Client(
                     "saverestricted",
@@ -509,77 +567,108 @@ async def save(client: Client, message: Message):
             except Exception as e:
                 batch_temp.IS_BATCH[message.from_user.id] = True
                 return await message.reply(f"<b>❌ Authentication Failed</b>\n\n<i>Your session may have expired. Please /logout and /login again.</i>\n<code>{e}</code>", parse_mode=enums.ParseMode.HTML)
+            
             if is_private_link:
                 chatid = int("-100" + datas[4])
-                await handle_restricted_content(client, acc, message, chatid, msgid)
+                success = await handle_restricted_content(client, acc, message, chatid, msgid, success_count)
+                if success:
+                    success_count += 1
             elif is_batch:
                 username = datas[4]
-                await handle_restricted_content(client, acc, message, username, msgid)
+                success = await handle_restricted_content(client, acc, message, username, msgid, success_count)
+                if success:
+                    success_count += 1
             else:
                 username = datas[3]
-                await handle_restricted_content(client, acc, message, username, msgid)
+                success = await handle_restricted_content(client, acc, message, username, msgid, success_count)
+                if success:
+                    success_count += 1
+            
             await asyncio.sleep(2)
+        
         batch_temp.IS_BATCH[message.from_user.id] = True
-async def handle_restricted_content(client: Client, acc, message: Message, chat_target, msgid):
+        # Send completion message
+        if success_count > 0:
+            await message.reply_text(f"<b>✅ Batch Complete</b>\n<i>Successfully downloaded {success_count} out of {batch_size} files</i>", parse_mode=enums.ParseMode.HTML)
+
+async def handle_restricted_content(client: Client, acc, message: Message, chat_target, msgid, success_count):
     try:
         msg: Message = await acc.get_messages(chat_target, msgid)
     except Exception as e:
         logger.error(f"Error fetching message: {e}")
-        return
+        return False
     if msg.empty:
-        return
-   
+        return False
+    
     msg_type = get_message_type(msg)
     if not msg_type:
-        return
+        return False
+    
     file_size = 0
     if msg_type == "Document": file_size = msg.document.file_size
     elif msg_type == "Video": file_size = msg.video.file_size
     elif msg_type == "Audio": file_size = msg.audio.file_size
-   
-    if file_size > FREE_LIMIT_SIZE:
-        if not await db.check_premium(message.from_user.id):
-            btn = InlineKeyboardMarkup([[InlineKeyboardButton("💎 Upgrade to Premium", callback_data="buy_premium")]])
-            await client.send_message(
-                message.chat.id,
-                script.SIZE_LIMIT,
-                reply_markup=btn,
-                parse_mode=enums.ParseMode.HTML
-            )
-            return
+    
+    # Check file size limit based on user status
+    is_premium = await db.check_premium(message.from_user.id)
+    if not is_premium and file_size > FREE_LIMIT_SIZE:
+        btn = InlineKeyboardMarkup([[InlineKeyboardButton("💎 Upgrade to Premium", callback_data="buy_premium")]])
+        await client.send_message(
+            message.chat.id,
+            script.SIZE_LIMIT.format(file_size=humanbytes(file_size)),
+            reply_markup=btn,
+            parse_mode=enums.ParseMode.HTML
+        )
+        return False
+    elif is_premium and file_size > PREMIUM_LIMIT_SIZE:
+        await client.send_message(
+            message.chat.id,
+            script.PREMIUM_SIZE_LIMIT.format(file_size=humanbytes(file_size)),
+            parse_mode=enums.ParseMode.HTML
+        )
+        return False
+    
+    # Handle text messages
     if msg_type == "Text":
         try:
             await client.send_message(message.chat.id, msg.text, entities=msg.entities, parse_mode=enums.ParseMode.HTML)
-            return
+            await db.add_traffic(message.from_user.id)
+            return True
         except:
-            return
+            return False
+    
+    # Add traffic for media files
     await db.add_traffic(message.from_user.id)
-    smsg = await client.send_message(message.chat.id, '<b>⬇️ Starting Download...</b>', reply_to_message_id=message.id, parse_mode=enums.ParseMode.HTML)
-   
+    smsg = await client.send_message(message.chat.id, f'<b>⬇️ Downloading file {success_count + 1}...</b>', reply_to_message_id=message.id, parse_mode=enums.ParseMode.HTML)
+    
     temp_dir = f"downloads/{message.id}"
     if not os.path.exists(temp_dir): os.makedirs(temp_dir)
+    
     try:
         asyncio.create_task(downstatus(client, f'{message.id}downstatus.txt', smsg, message.chat.id))
-       
+        
         file = await acc.download_media(
             msg,
             file_name=f"{temp_dir}/",
             progress=progress,
             progress_args=[message, "down"]
         )
-       
+        
         if os.path.exists(f'{message.id}downstatus.txt'): os.remove(f'{message.id}downstatus.txt')
     except Exception as e:
         if batch_temp.IS_BATCH.get(message.from_user.id) or "Cancelled" in str(e):
             if os.path.exists(temp_dir): shutil.rmtree(temp_dir)
-            return await smsg.edit("❌ **Task Cancelled**")
-        return await smsg.delete()
+            await smsg.edit("❌ **Task Cancelled**")
+            return False
+        await smsg.delete()
+        return False
+    
     try:
         asyncio.create_task(upstatus(client, f'{message.id}upstatus.txt', smsg, message.chat.id))
-       
+        
         ph_path = None
         thumb_id = await db.get_thumbnail(message.from_user.id)
-       
+        
         if thumb_id:
             try:
                 ph_path = await client.download_media(thumb_id, file_name=f"{temp_dir}/custom_thumb.jpg")
@@ -593,33 +682,71 @@ async def handle_restricted_content(client: Client, acc, message: Message, chat_
                     ph_path = await acc.download_media(msg.document.thumbs[0].file_id, file_name=f"{temp_dir}/thumb.jpg")
             except:
                 pass
+        
+        # Get custom caption
         custom_caption = await db.get_caption(message.from_user.id)
         if custom_caption:
-            final_caption = custom_caption.format(filename=file.split("/")[-1], size=humanbytes(file_size))
+            final_caption = custom_caption
         else:
-            final_caption = script.CAPTION.format(file_name=file.split("/")[-1])
+            final_caption = script.CAPTION
             if msg.caption:
-                final_caption += f"\n\n{msg.caption}"
+                final_caption = f"{msg.caption}\n\n" + final_caption
+        
+        # Send file based on type
         if msg_type == "Document":
-            await client.send_document(message.chat.id, file, thumb=ph_path, caption=final_caption, progress=progress, progress_args=[message, "up"])
+            await client.send_document(
+                message.chat.id, 
+                file, 
+                thumb=ph_path, 
+                caption=final_caption, 
+                progress=progress, 
+                progress_args=[message, "up"]
+            )
         elif msg_type == "Video":
-            await client.send_video(message.chat.id, file, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=ph_path, caption=final_caption, progress=progress, progress_args=[message, "up"])
+            await client.send_video(
+                message.chat.id, 
+                file, 
+                duration=msg.video.duration, 
+                width=msg.video.width, 
+                height=msg.video.height, 
+                thumb=ph_path, 
+                caption=final_caption, 
+                progress=progress, 
+                progress_args=[message, "up"]
+            )
         elif msg_type == "Audio":
-            await client.send_audio(message.chat.id, file, thumb=ph_path, caption=final_caption, progress=progress, progress_args=[message, "up"])
+            await client.send_audio(
+                message.chat.id, 
+                file, 
+                thumb=ph_path, 
+                caption=final_caption, 
+                progress=progress, 
+                progress_args=[message, "up"]
+            )
         elif msg_type == "Photo":
-            await client.send_photo(message.chat.id, file, caption=final_caption)
-       
+            await client.send_photo(
+                message.chat.id, 
+                file, 
+                caption=final_caption
+            )
+        
     except Exception as e:
-         await smsg.edit(f"Upload Failed: {e}")
+        await smsg.edit(f"Upload Failed: {e}")
+        return False
+    
+    # Cleanup
     if os.path.exists(f'{message.id}upstatus.txt'): os.remove(f'{message.id}upstatus.txt')
     if os.path.exists(temp_dir): shutil.rmtree(temp_dir)
     await client.delete_messages(message.chat.id, [smsg.id])
+    return True
+
 @Client.on_callback_query()
 async def button_callbacks(client: Client, callback_query: CallbackQuery):
     data = callback_query.data
     message = callback_query.message
     if not message: return
-   # --- DEVELOPER INFO ---
+    
+    # --- DEVELOPER INFO ---
     if data == "dev_info":
         await callback_query.answer(
             text=dev_text,
@@ -642,7 +769,7 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             message_id=message.id,
             media=InputMediaPhoto(
                 media=SUBSCRIPTION,
-                caption=script.PREMIUM_TEXT.format(callback_query.from_user.mention, UPI_ID, QR_CODE)
+                caption=script.PREMIUM_TEXT.format(UPI_ID, QR_CODE)
             ),
             reply_markup=InlineKeyboardMarkup(buttons)
         )
@@ -655,7 +782,6 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(buttons),
             parse_mode=enums.ParseMode.HTML
         )
-  
     elif data == "about_btn":
         buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
         await client.edit_message_caption(
@@ -678,17 +804,17 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             photo_url = "https://i.ibb.co/k2P1Zt9k/image.jpg"
         buttons = [
             [
-            InlineKeyboardButton("📢 Channel", url="https://t.me/teamjb1"),
-        InlineKeyboardButton("💬 Group", url="https://t.me/botsupdatesgroup")
-        ],
-        [
-            InlineKeyboardButton("👨‍💻 Developer", url="https://t.me/TeamJB_bot"),
-            InlineKeyboardButton("ℹ️ About Bot", callback_data="about_btn")
-        ],
-        [
-            InlineKeyboardButton('💎 Buy Premium', callback_data="buy_premium"),
-            InlineKeyboardButton('🆘 Help & Guide', callback_data="help_btn1")
-        ]
+                InlineKeyboardButton("📢 Channel", url="https://t.me/teamjb1"),
+                InlineKeyboardButton("💬 Group", url="https://t.me/botsupdatesgroup")
+            ],
+            [
+                InlineKeyboardButton("👨‍💻 Developer", url="https://t.me/TeamJB_bot"),
+                InlineKeyboardButton("ℹ️ About Bot", callback_data="about_btn")
+            ],
+            [
+                InlineKeyboardButton('💎 Buy Premium', callback_data="buy_premium"),
+                InlineKeyboardButton('🆘 Help & Guide', callback_data="help_btn1")
+            ]
         ]
         await client.edit_message_media(
             chat_id=message.chat.id,
@@ -702,5 +828,7 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
     elif data == "close_btn":
         await message.delete()
     elif data in ["cmd_list_btn", "user_stats_btn", "dump_chat_btn", "thumb_btn", "caption_btn"]:
-        pass
+        # Placeholder for future implementations
+        await callback_query.answer("This feature will be available soon!", show_alert=True)
     await callback_query.answer()
+                   
