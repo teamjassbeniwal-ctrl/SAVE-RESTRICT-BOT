@@ -354,13 +354,6 @@ async def send_help(client: Client, message: Message):
         reply_markup=InlineKeyboardMarkup(buttons),
         parse_mode=enums.ParseMode.HTML
     )
-    buttons = [[InlineKeyboardButton("❌ Close Menu", callback_data="close_btn")]]
-    await client.send_message(
-        chat_id=message.chat.id,
-        text=script.HELP_TXT,
-        reply_markup=InlineKeyboardMarkup(buttons),
-        parse_mode=enums.ParseMode.HTML
-    )
 @Client.on_message(filters.command(["plan", "myplan", "premium"]))
 async def send_plan(client: Client, message: Message):
     if await force_subscribe(client, message):
@@ -627,7 +620,9 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(buttons)
         )
     elif data == "help_btn":
-        buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
+    buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
+    if message.photo or message.video or message.document:
+        # If message is media, edit caption
         await client.edit_message_caption(
             chat_id=message.chat.id,
             message_id=message.id,
@@ -635,13 +630,31 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(buttons),
             parse_mode=enums.ParseMode.HTML
         )
-  
-    elif data == "about_btn":
-        buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
+    else:
+        # If message is plain text, edit text
+        await client.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=message.id,
+            text=script.HELP_TXT,
+            reply_markup=InlineKeyboardMarkup(buttons),
+            parse_mode=enums.ParseMode.HTML
+        )
+
+elif data == "about_btn":
+    buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
+    if message.photo or message.video or message.document:
         await client.edit_message_caption(
             chat_id=message.chat.id,
             message_id=message.id,
             caption=script.ABOUT_TXT,
+            reply_markup=InlineKeyboardMarkup(buttons),
+            parse_mode=enums.ParseMode.HTML
+        )
+    else:
+        await client.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=message.id,
+            text=script.ABOUT_TXT,
             reply_markup=InlineKeyboardMarkup(buttons),
             parse_mode=enums.ParseMode.HTML
         )
