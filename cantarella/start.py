@@ -103,6 +103,8 @@ https://t.me/c/xxxx/101-120
 ⏣ /start - ᴄʜᴇᴄᴋ ɪ'ᴍ ᴀʟɪᴠᴇ
 ⏣ /help - ʜᴇʟᴘ ᴍᴇɴᴜ
 ⏣ /batch - ᴅᴏᴡɴʟᴏᴀᴅ ᴍᴜʟᴛɪᴘʟᴇ ᴘᴏsᴛs ᴀᴛ ᴀ ᴛɪᴍᴇ
+⏣ /myplan - Check your plan
+⏣ /premium - Check premium plans
 ⏣ /settings - ᴄᴜsᴛᴏᴍɪᴢᴇ sᴇᴛᴛɪɴɢs
 ⏣ /login - ʟᴏɢɪɴ ᴀᴄᴄᴏᴜɴᴛ
 ⏣ /logout - ʟᴏɢᴏᴜᴛ ᴀᴄᴄᴏᴜɴᴛ
@@ -115,6 +117,31 @@ https://t.me/c/xxxx/101-120
 ⏣ /setchat - sᴇᴛ ᴄʜᴀɴɴᴇʟ
 ⏣ /remchat - ᴅᴇʟᴇᴛᴇ ᴄʜᴀɴɴᴇʟ
 ⏣ /broadcast - ʙʀᴏᴀᴅᴄᴀsᴛ ᴍᴇssᴀɢᴇ (ᴏᴡɴᴇʀ ᴏɴʟʏ)
+
+⚠️ TIPS :-
+• Make sure links are correct
+• Private content needs login
+• Use /cancel to stop batch download
+"""
+    HELP_TXT1 = """🖍️ HELP MENU
+
+🔻 ғᴏʀ ᴘᴜʙʟɪᴄ ᴀɴᴅ ᴘʀɪᴠᴀᴛᴇ ᴄʜᴀᴛs :-
+► Jᴜsᴛ Sᴇɴᴅ Pᴏsᴛ Lɪɴᴋs
+• Public Channels Example: https://t.me/channel/123
+• Private Channels Example: https://t.me/c/12345/678
+• Private content requires login: /login
+
+🔻 ғᴏʀ ʙᴏᴛ ᴄʜᴀᴛs :-
+► Send bot messages link like:
+https://t.me/b/botusername/4321
+- For bot message ID use Plus Messenger App
+
+🔻 ғᴏʀ ᴍᴜʟᴛɪᴘʟᴇ ᴘᴏsᴛ ᴀᴛ ᴀ ᴛɪᴍᴇ :-
+► Send public/private post links in "from-to" format to download multiple messages
+• Example:
+https://t.me/xxxx/1001-1010
+https://t.me/c/xxxx/101-120
+• Note: Spaces in between do not matter
 
 ⚠️ TIPS :-
 • Make sure links are correct
@@ -620,23 +647,24 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(buttons)
         )
     elif data == "help_btn":
-    buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
-    await client.edit_message_text(
-        chat_id=message.chat.id,
-        message_id=message.id,
-        text=script.HELP_TXT,
-        reply_markup=InlineKeyboardMarkup(buttons),
-        parse_mode=enums.ParseMode.HTML
-    )
+        buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
+        await client.edit_message_caption(
+            chat_id=message.chat.id,
+            message_id=message.id,
+            caption=script.HELP_TXT1,
+            reply_markup=InlineKeyboardMarkup(buttons),
+            parse_mode=enums.ParseMode.HTML
+        )
+  
     elif data == "about_btn":
-    buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
-    await client.edit_message_text(
-        chat_id=message.chat.id,
-        message_id=message.id,
-        text=script.ABOUT_TXT,
-        reply_markup=InlineKeyboardMarkup(buttons),
-        parse_mode=enums.ParseMode.HTML
-    )
+        buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
+        await client.edit_message_caption(
+            chat_id=message.chat.id,
+            message_id=message.id,
+            caption=script.ABOUT_TXT,
+            reply_markup=InlineKeyboardMarkup(buttons),
+            parse_mode=enums.ParseMode.HTML
+        )
     elif data == "start_btn":
         bot = await client.get_me()
         apis = ["https://api.waifu.pics/sfw/waifu", "https://nekos.life/api/v2/img/waifu"]
@@ -659,7 +687,7 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
         ],
         [
             InlineKeyboardButton('💎 Buy Premium', callback_data="buy_premium"),
-            InlineKeyboardButton('🆘 Help & Guide', callback_data="help_btn")
+            InlineKeyboardButton('🆘 Help & Guide', callback_data="help_btn1")
         ]
         ]
         await client.edit_message_media(
