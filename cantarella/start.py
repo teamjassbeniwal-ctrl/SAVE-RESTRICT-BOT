@@ -624,7 +624,7 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
         await client.edit_message_caption(
             chat_id=message.chat.id,
             message_id=message.id,
-            caption=script.HELP_TXT,
+            text=script.HELP_TXT,
             reply_markup=InlineKeyboardMarkup(buttons),
             parse_mode=enums.ParseMode.HTML
         )
@@ -634,7 +634,7 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
         await client.edit_message_caption(
             chat_id=message.chat.id,
             message_id=message.id,
-            caption=script.ABOUT_TXT,
+            text=script.ABOUT_TXT,
             reply_markup=InlineKeyboardMarkup(buttons),
             parse_mode=enums.ParseMode.HTML
         )
