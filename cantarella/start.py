@@ -620,9 +620,7 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(buttons)
         )
     elif data == "help_btn":
-    buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
-    if message.photo or message.video or message.document:
-        # If message is media, edit caption
+        buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
         await client.edit_message_caption(
             chat_id=message.chat.id,
             message_id=message.id,
@@ -630,31 +628,13 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(buttons),
             parse_mode=enums.ParseMode.HTML
         )
-    else:
-        # If message is plain text, edit text
-        await client.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=message.id,
-            text=script.HELP_TXT,
-            reply_markup=InlineKeyboardMarkup(buttons),
-            parse_mode=enums.ParseMode.HTML
-        )
-
-elif data == "about_btn":
-    buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
-    if message.photo or message.video or message.document:
+  
+    elif data == "about_btn":
+        buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
         await client.edit_message_caption(
             chat_id=message.chat.id,
             message_id=message.id,
             caption=script.ABOUT_TXT,
-            reply_markup=InlineKeyboardMarkup(buttons),
-            parse_mode=enums.ParseMode.HTML
-        )
-    else:
-        await client.edit_message_text(
-            chat_id=message.chat.id,
-            message_id=message.id,
-            text=script.ABOUT_TXT,
             reply_markup=InlineKeyboardMarkup(buttons),
             parse_mode=enums.ParseMode.HTML
         )
