@@ -628,7 +628,6 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
         reply_markup=InlineKeyboardMarkup(buttons),
         parse_mode=enums.ParseMode.HTML
     )
-
     elif data == "about_btn":
     buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
     await client.edit_message_text(
