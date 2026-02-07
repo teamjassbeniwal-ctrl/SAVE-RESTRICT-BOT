@@ -357,7 +357,7 @@ async def send_start(client: Client, message: Message):
         ],
         [
             InlineKeyboardButton('💎 Buy Premium', callback_data="buy_premium"),
-            InlineKeyboardButton('🆘 Help & Guide', callback_data="help_btn")
+            InlineKeyboardButton('🆘 Help & Guide', callback_data="help_btn1")
         ]
     ]
     reply_markup = InlineKeyboardMarkup(buttons)
@@ -646,7 +646,7 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             ),
             reply_markup=InlineKeyboardMarkup(buttons)
         )
-    elif data == "help_btn":
+    elif data == "help_btn1":
         buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
         await client.edit_message_caption(
             chat_id=message.chat.id,
