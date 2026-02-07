@@ -620,24 +620,24 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(buttons)
         )
     elif data == "help_btn":
-        buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
-        await client.edit_message_caption(
-            chat_id=message.chat.id,
-            message_id=message.id,
-            text=script.HELP_TXT,
-            reply_markup=InlineKeyboardMarkup(buttons),
-            parse_mode=enums.ParseMode.HTML
-        )
-  
+    buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
+    await client.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=message.id,
+        text=script.HELP_TXT,
+        reply_markup=InlineKeyboardMarkup(buttons),
+        parse_mode=enums.ParseMode.HTML
+    )
+
     elif data == "about_btn":
-        buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
-        await client.edit_message_caption(
-            chat_id=message.chat.id,
-            message_id=message.id,
-            text=script.ABOUT_TXT,
-            reply_markup=InlineKeyboardMarkup(buttons),
-            parse_mode=enums.ParseMode.HTML
-        )
+    buttons = [[InlineKeyboardButton("⬅️ Back to Home", callback_data="start_btn")]]
+    await client.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=message.id,
+        text=script.ABOUT_TXT,
+        reply_markup=InlineKeyboardMarkup(buttons),
+        parse_mode=enums.ParseMode.HTML
+    )
     elif data == "start_btn":
         bot = await client.get_me()
         apis = ["https://api.waifu.pics/sfw/waifu", "https://nekos.life/api/v2/img/waifu"]
