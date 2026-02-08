@@ -269,6 +269,7 @@ def TimeFormatter(milliseconds: int) -> str:
 
 class batch_temp(object):
     IS_BATCH = {}
+    CANCELLED_USERS = set()  # Track users who cancelled
 
 def get_message_type(msg):
     if getattr(msg, 'document', None): return "Document"
@@ -303,8 +304,14 @@ async def upstatus(client, statusfile, message, chat):
             await asyncio.sleep(5)
 
 def progress(current, total, message, type):
-    if batch_temp.IS_BATCH.get(message.from_user.id):
+    # Check if user has cancelled
+    user_id = message.from_user.id
+    if user_id in batch_temp.CANCELLED_USERS:
         raise Exception("Cancelled")
+    
+    if batch_temp.IS_BATCH.get(user_id):
+        raise Exception("Cancelled")
+    
     if not hasattr(progress, "cache"):
         progress.cache = {}
    
@@ -424,8 +431,31 @@ async def send_plan(client: Client, message: Message):
 async def send_cancel(client: Client, message: Message):
     if await force_subscribe(client, message):
         return
-    batch_temp.IS_BATCH[message.from_user.id] = True
-    await message.reply_text("❌ Batch Process Cancelled Successfully.")
+    
+    user_id = message.from_user.id
+    
+    # Set cancellation flag
+    batch_temp.IS_BATCH[user_id] = True
+    batch_temp.CANCELLED_USERS.add(user_id)
+    
+    # Clean up any existing status files
+    try:
+        if os.path.exists(f'{message.id}downstatus.txt'):
+            os.remove(f'{message.id}downstatus.txt')
+        if os.path.exists(f'{message.id}upstatus.txt'):
+            os.remove(f'{message.id}upstatus.txt')
+    except:
+        pass
+    
+    await message.reply_text("❌ **Batch Process Cancelled Successfully.**\n<i>You can now start new downloads.</i>", parse_mode=enums.ParseMode.HTML)
+    
+    # Clean up cancellation flags after a delay
+    async def cleanup_flags():
+        await asyncio.sleep(5)
+        batch_temp.IS_BATCH.pop(user_id, None)
+        batch_temp.CANCELLED_USERS.discard(user_id)
+    
+    asyncio.create_task(cleanup_flags())
 
 async def settings_panel(client, callback_query):
     """
@@ -466,6 +496,11 @@ async def check_sub(client, query):
 @Client.on_message(filters.text & filters.private & ~filters.regex("^/"))
 async def save(client: Client, message: Message):
     if "https://t.me/" in message.text:
+        # Clear any previous cancellation flags
+        user_id = message.from_user.id
+        batch_temp.IS_BATCH.pop(user_id, None)
+        batch_temp.CANCELLED_USERS.discard(user_id)
+        
         # Check daily limit
         is_limit_reached = await db.check_limit(message.from_user.id)
         if is_limit_reached:
@@ -504,8 +539,9 @@ async def save(client: Client, message: Message):
                 parse_mode=enums.ParseMode.HTML
             )
         elif is_premium and batch_size > 1000:
-            return await message.reply_text("<b>⚠️ Batch Limit Exceeded</b>\n<i>Premium users can download maximum 1000 files per batch.</i>", parse_mode=enums.ParseMode.HTML)
+             return await message.reply_text("<b>⚠️ Batch Limit Exceeded</b>\n<i>Premium users can download maximum 1000 files per batch.</i>", parse_mode=enums.ParseMode.HTML)
         
+        # Start batch process
         batch_temp.IS_BATCH[message.from_user.id] = False
         is_private_link = "https://t.me/c/" in message.text
         is_batch = "https://t.me/b/" in message.text
@@ -514,16 +550,20 @@ async def save(client: Client, message: Message):
         # Initialize counter for successful downloads
         success_count = 0
         
+        # Send batch start message
+        start_msg = await message.reply_text(f"<b>🚀 Starting Batch Download...</b>\n<i>Total files: {batch_size}</i>\n\n<i>Use /cancel to stop at any time.</i>", parse_mode=enums.ParseMode.HTML)
+        
         for msgid in range(fromID, toID + 1):
             # Check if batch was cancelled
-            if batch_temp.IS_BATCH.get(message.from_user.id):
+            if batch_temp.IS_BATCH.get(message.from_user.id) or message.from_user.id in batch_temp.CANCELLED_USERS:
+                await start_msg.edit_text(f"<b>❌ Batch Cancelled</b>\n<i>Successfully downloaded {success_count} files out of {batch_size}</i>", parse_mode=enums.ParseMode.HTML)
                 break
             
             # Check daily limit for each file (for free users)
             if not is_premium:
                 is_limit_reached = await db.check_limit(message.from_user.id)
                 if is_limit_reached:
-                    await message.reply_text(f"<b>⚠️ Daily Limit Reached</b>\n<i>Successfully downloaded {success_count} files out of {batch_size}</i>", parse_mode=enums.ParseMode.HTML)
+                    await start_msg.edit_text(f"<b>⚠️ Daily Limit Reached</b>\n<i>Successfully downloaded {success_count} files out of {batch_size}</i>", parse_mode=enums.ParseMode.HTML)
                     break
             
             if is_public_link:
@@ -552,6 +592,7 @@ async def save(client: Client, message: Message):
                     parse_mode=enums.ParseMode.HTML
                 )
                 batch_temp.IS_BATCH[message.from_user.id] = True
+                await start_msg.delete()
                 return
             
             try:
@@ -566,6 +607,7 @@ async def save(client: Client, message: Message):
                 await acc.connect()
             except Exception as e:
                 batch_temp.IS_BATCH[message.from_user.id] = True
+                await start_msg.delete()
                 return await message.reply(f"<b>❌ Authentication Failed</b>\n\n<i>Your session may have expired. Please /logout and /login again.</i>\n<code>{e}</code>", parse_mode=enums.ParseMode.HTML)
             
             if is_private_link:
@@ -584,14 +626,31 @@ async def save(client: Client, message: Message):
                 if success:
                     success_count += 1
             
+            # Update progress message
+            if success_count % 5 == 0 or success_count == batch_size:
+                try:
+                    await start_msg.edit_text(f"<b>📥 Download Progress</b>\n<i>Files downloaded: {success_count}/{batch_size}</i>\n\n<i>Use /cancel to stop</i>", parse_mode=enums.ParseMode.HTML)
+                except:
+                    pass
+            
             await asyncio.sleep(2)
         
+        # Mark batch as completed
         batch_temp.IS_BATCH[message.from_user.id] = True
+        batch_temp.CANCELLED_USERS.discard(message.from_user.id)
+        
         # Send completion message
         if success_count > 0:
-            await message.reply_text(f"<b>✅ Batch Complete</b>\n<i>Successfully downloaded {success_count} out of {batch_size} files</i>", parse_mode=enums.ParseMode.HTML)
+            await start_msg.edit_text(f"<b>✅ Batch Complete</b>\n<i>Successfully downloaded {success_count} out of {batch_size} files</i>", parse_mode=enums.ParseMode.HTML)
+        else:
+            await start_msg.delete()
 
 async def handle_restricted_content(client: Client, acc, message: Message, chat_target, msgid, success_count):
+    # Check if cancelled before processing
+    user_id = message.from_user.id
+    if batch_temp.IS_BATCH.get(user_id) or user_id in batch_temp.CANCELLED_USERS:
+        return False
+    
     try:
         msg: Message = await acc.get_messages(chat_target, msgid)
     except Exception as e:
@@ -637,11 +696,15 @@ async def handle_restricted_content(client: Client, acc, message: Message, chat_
         except:
             return False
     
+    # Check if cancelled before downloading
+    if batch_temp.IS_BATCH.get(user_id) or user_id in batch_temp.CANCELLED_USERS:
+        return False
+    
     # Add traffic for media files
     await db.add_traffic(message.from_user.id)
-    smsg = await client.send_message(message.chat.id, f'<b>⬇️ Downloading file {success_count + 1}...</b>', reply_to_message_id=message.id, parse_mode=enums.ParseMode.HTML)
+    smsg = await client.send_message(message.chat.id, f'<b>⬇️ Downloading file {success_count + 1}...</b>\n<i>Type: {msg_type}</i>', reply_to_message_id=message.id, parse_mode=enums.ParseMode.HTML)
     
-    temp_dir = f"downloads/{message.id}"
+    temp_dir = f"downloads/{message.id}_{success_count}"
     if not os.path.exists(temp_dir): os.makedirs(temp_dir)
     
     try:
@@ -656,10 +719,16 @@ async def handle_restricted_content(client: Client, acc, message: Message, chat_
         
         if os.path.exists(f'{message.id}downstatus.txt'): os.remove(f'{message.id}downstatus.txt')
     except Exception as e:
-        if batch_temp.IS_BATCH.get(message.from_user.id) or "Cancelled" in str(e):
+        if batch_temp.IS_BATCH.get(message.from_user.id) or "Cancelled" in str(e) or message.from_user.id in batch_temp.CANCELLED_USERS:
             if os.path.exists(temp_dir): shutil.rmtree(temp_dir)
-            await smsg.edit("❌ **Task Cancelled**")
+            await smsg.edit("❌ **Download Cancelled**")
             return False
+        await smsg.delete()
+        return False
+    
+    # Check if cancelled before uploading
+    if batch_temp.IS_BATCH.get(user_id) or user_id in batch_temp.CANCELLED_USERS:
+        if os.path.exists(temp_dir): shutil.rmtree(temp_dir)
         await smsg.delete()
         return False
     
@@ -831,4 +900,3 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
         # Placeholder for future implementations
         await callback_query.answer("This feature will be available soon!", show_alert=True)
     await callback_query.answer()
-                   
