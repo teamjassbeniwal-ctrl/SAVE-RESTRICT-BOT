@@ -271,11 +271,10 @@ def TimeFormatter(milliseconds: int) -> str:
         ((str(seconds) + "s, ") if seconds else "")
     return tmp[:-2] if tmp else "0s"
 
-class batch_temp(object):
-    IS_BATCH = {}
-    CANCELLED_USERS = {}
-    ACTIVE_SESSIONS = {}
-    CURRENT_MESSAGE_ID = {}
+class batch_temp:
+    RUNNING = set()        # users with active downloads
+    CANCELLED = set()      # users who pressed /cancel
+    ACTIVE_SESSIONS = {}   # user_id -> Client
 
 def get_message_type(msg):
     if getattr(msg, 'document', None): return "Document"
@@ -333,7 +332,8 @@ def progress(current, total, message, type):
                 batch_temp.CANCELLED_USERS.pop(user_id, None)
         
         if batch_temp.IS_BATCH.get(user_id):
-            raise Exception("Cancelled")
+            if message.from_user.id in batch_temp.CANCELLED:
+    return
         
         if not hasattr(progress, "cache"):
             progress.cache = {}
@@ -454,37 +454,29 @@ async def send_plan(client: Client, message: Message):
 
 @Client.on_message(filters.command(["cancel"]))
 async def send_cancel(client: Client, message: Message):
-    if await force_subscribe(client, message):
-        return
-    
+
     user_id = message.from_user.id
-    
-    # Set cancellation flag
-    batch_temp.IS_BATCH[user_id] = True
-    batch_temp.CANCELLED_USERS[user_id] = time.time()
-    
-    # Clean up any active sessions for this user
-    if user_id in batch_temp.ACTIVE_SESSIONS:
+
+    if user_id not in batch_temp.RUNNING:
+        return await message.reply_text("❌ No active download to cancel.")
+
+    # mark cancelled
+    batch_temp.CANCELLED.add(user_id)
+
+    # disconnect user session if running
+    acc = batch_temp.ACTIVE_SESSIONS.pop(user_id, None)
+    if acc:
         try:
-            acc = batch_temp.ACTIVE_SESSIONS[user_id]
             await acc.disconnect()
-            batch_temp.ACTIVE_SESSIONS.pop(user_id, None)
         except:
             pass
-    
-    # Clean up status files
-    try:
-        # Find and delete all status files
-        for filename in os.listdir('.'):
-            if filename.endswith('status.txt'):
-                try:
-                    os.remove(filename)
-                except:
-                    pass
-    except:
-        pass
-    
-    await message.reply_text("✅ **Batch Process Cancelled Successfully.**\n<i>You can now start new downloads.</i>", parse_mode=enums.ParseMode.HTML)
+
+    batch_temp.RUNNING.discard(user_id)
+
+    await message.reply_text(
+        "✅ **Download cancelled successfully.**\nYou can start a new download now.",
+        parse_mode=enums.ParseMode.HTML
+    )
 
 async def settings_panel(client, callback_query):
     """
@@ -533,8 +525,14 @@ async def save(client: Client, message: Message):
         user_id = message.from_user.id
         
         # Clear any previous cancellation flags
-        batch_temp.IS_BATCH.pop(user_id, None)
-        batch_temp.CANCELLED_USERS.pop(user_id, None)
+        if user_id in batch_temp.RUNNING:
+    return await message.reply_text(
+        "⚠️ A download is already running.\nUse /cancel to stop it first.",
+        parse_mode=enums.ParseMode.HTML
+    )
+
+batch_temp.RUNNING.add(user_id)
+batch_temp.CANCELLED.discard(user_id)
         
         # Check daily limit
         is_limit_reached = await db.check_limit(message.from_user.id)
