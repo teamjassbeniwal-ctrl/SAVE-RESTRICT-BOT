@@ -248,7 +248,6 @@ Download files up to 4GB with no limits!
 <blockquote><b>🔓 Upgrade to Premium</b></blockquote>
 Download up to 1000 files per batch with Premium!
 """
-
 def humanbytes(size):
     if not size:
         return "0B"
@@ -519,7 +518,7 @@ async def check_sub(client, query):
     await query.message.delete()
     await query.answer("Subscription Verified ✅")
     
-@Client.on_message(filters.text & filters.private & ~filters.regex("^/"))
+ @Client.on_message(filters.text & filters.private & ~filters.regex("^/"))
 async def save(client: Client, message: Message):
     if "https://t.me/" in message.text:
         user_id = message.from_user.id
@@ -932,7 +931,7 @@ async def handle_restricted_content(client: Client, acc, message: Message, chat_
         except:
             pass
     
-    return True
+    return True           
 
 @Client.on_callback_query()
 async def button_callbacks(client: Client, callback_query: CallbackQuery):
