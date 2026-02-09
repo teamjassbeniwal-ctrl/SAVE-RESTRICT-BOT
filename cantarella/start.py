@@ -330,8 +330,7 @@ def progress(current, total, message, type):
                 # Clean up old cancellation
                 batch_temp.CANCELLED_USERS.pop(user_id, None)
         
-        if batch_temp.IS_BATCH.get(user_id):
-            if message.from_user.id in batch_temp.CANCELLED:
+        if batch_temp.IS_BATCH.get(user_id) and user_id in batch_temp.CANCELLED:
     return
         
         if not hasattr(progress, "cache"):
